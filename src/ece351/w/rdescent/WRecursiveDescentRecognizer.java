@@ -30,6 +30,7 @@ import ece351.util.Lexer;
 
 public final class WRecursiveDescentRecognizer {
     private final Lexer lexer;
+    
 
     public WRecursiveDescentRecognizer(final Lexer lexer) {
         this.lexer = lexer;
@@ -55,12 +56,49 @@ public final class WRecursiveDescentRecognizer {
         waveform();
         while (!lexer.inspectEOF()) {
             waveform();
+//            System.out.println(lexer.debugState());
         }
         lexer.consumeEOF();
     }
 
     public void waveform() {
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+// throw new ece351.util.Todo351Exception();
+    	final String[] bit_tokens = {"0","1"};
+    	double id_counter = 0;
+    	double bit_counter = 0;
+    	
+//    	lexer.consumeID();
+    	while (lexer.inspectID()) {
+    		lexer.consumeID();
+    		id_counter++;
+//			System.out.println(lexer.debugState());
+    	}
+    	if (id_counter < 1) {
+    		throw new RuntimeException();
+    	}
+    	
+    	lexer.consume(":");
+//    	if (lexer.inspect(":")) {
+//    		lexer.consume(":");
+//    	} else {
+//    		throw new RuntimeException();
+//    	}
+    	
+    	while (lexer.inspect(bit_tokens)) {
+    		if (lexer.inspect(bit_tokens)) {
+        		lexer.consume(bit_tokens);
+        		bit_counter++;
+        	}
+    	}
+    	if (bit_counter < 1) {
+    		throw new RuntimeException();
+    	}
+    	
+    	if (lexer.inspect(";")) {
+    		lexer.consume(";");
+    	} else {
+    		throw new RuntimeException();
+    	}
     }
 }

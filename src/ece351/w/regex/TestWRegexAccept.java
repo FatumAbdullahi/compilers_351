@@ -48,7 +48,7 @@ public final class TestWRegexAccept {
 	 * Now you have a fairly general regex. Copy and paste it into this static
 	 * variable and let's try to match it against all of the test wave files.
 	 */
-	final static String REGEX = "TODO";
+	final static String REGEX = "(\\s*\\w*\\s*:\\s*[(0|1)\\s*]+;\\s*)+";
 // TODO: short code snippet
 
 
