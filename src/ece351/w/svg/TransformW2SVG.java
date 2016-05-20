@@ -47,6 +47,7 @@ public final class TransformW2SVG {
 // TODO: short code snippet
 
 	
+	
 	public static void main(final CommandLine c) {
 		final WProgram wp;
 		if (c.parbparser) {
@@ -93,8 +94,8 @@ public final class TransformW2SVG {
 		
 		int y_mid = 150;
 		int y_prev = 150;
-		int y_pos =150;
-		final int y_off =50;
+		int y_pos = 150;
+		final int y_off = 50;
 
 		// loop on waveforms
 		// this line implicitly uses an iterator
@@ -115,12 +116,27 @@ public final class TransformW2SVG {
 				// draw the horizontal line
 				// get ready for the next bit
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+				// vertical line
+				if (bit == "1") {
+					y_pos = y_mid - y_off;
+				} else {
+					y_pos = y_mid + y_off;
+				}
+				if (y_pos != y_prev) {
+					out.println(Line.toSVG(x, y_prev, x, y_pos));
+					y_prev = y_pos;
+				}
+				
+				// horizontal line
+				out.println(Line.toSVG(x, y_pos, x += WIDTH, y_pos));
+				
 			}
 			
 			// advance the y position for the next pin
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+			y_mid += 150;
+			y_prev = y_mid;
+			y_pos +=150;
 
 		}
 

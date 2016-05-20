@@ -6,8 +6,8 @@
 # Comment lines start with an octothorpe (#), per the Unix convention.
 # The actual data lines do not start with octothorpe (#).
 lab0 2
-lab1 0
-lab2 0
+lab1 4
+lab2 7
 lab3 0
 lab4 0
 lab5 0

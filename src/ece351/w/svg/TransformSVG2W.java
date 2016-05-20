@@ -69,7 +69,24 @@ public final class TransformSVG2W {
 			final Line line = lines.remove(0);
 
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+			// add y's to setY
+			setY.add(line.y1);
+			setY.add(line.y2);
+			
+			if (setY.size() < 4) {
+				extract.add(line);
+			
+			// transform to waveform and reset setY and extract
+			} else {
+				waveforms = waveforms.append(transformLinesToWaveform(extract, pins));
+				System.out.println(extract);
+				setY.clear();
+				extract.clear();
+				setY.add(line.y1);
+				setY.add(line.y2);
+				extract.add(line);
+			}
+			
 		}
 
 		// the last waveform
@@ -94,18 +111,27 @@ throw new ece351.util.Todo351Exception();
 
 		// The first line of the waveform.
 		final Line first = lines.get(0);
+		final double first_avg = (double)((first.y1 + first.y2) / 2.0);
 
 		for(int i = 1; i < lines.size(); i++) {
 			// If a dot, skip it.
+			if (lines.get(i).x1 == lines.get(i).x2 && lines.get(i).y1 == lines.get(i).y2) {
+				continue;
+			}
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+			if (lines.get(i).x1 != lines.get(i).x2) {
+				if (lines.get(i).y1 <= first_avg) {
+					bits = bits.append("1");
+				} else {
+					bits = bits.append("0");
+				}
+			}
 		}
 
 		// Get the corresponding id for this waveform.
-		String id = "UNKNOWN";
-		//return new Waveform(bits, id); // construct a new waveform object
+		String id = pins.remove(0).id;
+		return new Waveform(bits, id); // construct a new waveform object
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
 
 	}
 
