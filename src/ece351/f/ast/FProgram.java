@@ -128,7 +128,13 @@ public final class FProgram implements Examinable {
 		if (formulas == null || formulas.isEmpty()) return "";
 		final String sep = System.getProperty("line.separator");
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+		String prg = "";
+		for (int i = 0; i < formulas.size(); i++) {
+			AssignmentStatement ast = formulas.get(i);
+			prg += ast.toString() + sep;
+		}
+		
+		return prg;
     }
     
 	@Override

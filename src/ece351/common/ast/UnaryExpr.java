@@ -78,7 +78,7 @@ throw new ece351.util.Todo351Exception();
 	@Override
 	public final String toString() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return this.operator() + expr.toString();
 	}
 
 }

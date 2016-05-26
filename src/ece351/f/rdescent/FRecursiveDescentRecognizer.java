@@ -67,11 +67,70 @@ public final class FRecursiveDescentRecognizer implements Constants {
         lexer.consume(";");
     }
     
-    void expr() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-    void term() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-	void factor() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-	void var() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-	void constant() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
+    void expr() {
+    	
+    	if (lexer.inspect(";")) {
+    		return;
+    	}
+    	
+    	if (lexer.inspect("or")) {
+    		lexer.consume("or");
+    	}
+    	term();
+    	if (lexer.inspect("or")) {
+    		expr();
+    	}
+    }
+    
+    void term() {
+    	
+    	if (lexer.inspect("and")) {
+    		lexer.consume("and");
+    	}
+    	factor();
+    	if (lexer.inspect("and")) {
+    		term();
+    	}
+    }
+    
+	void factor() {
+
+		if (lexer.inspect("not")) {
+			lexer.consume("not");
+			factor();
+		} else if (lexer.inspect("(")) {
+			lexer.consume("(");
+			expr();
+			lexer.consume(")");
+		} else if (peekConstant()) {
+			constant();
+		} else {
+			var();
+		}
+	}
+	
+	void var() {
+		if (lexer.inspectID()) {
+			lexer.consumeID();
+		}
+	}
+	
+	void constant() {
+		
+		if (lexer.inspect("'")) {
+			lexer.consume("'");
+		}
+		
+		if (lexer.inspect("0")) {
+			lexer.consume("0");
+		} else if (lexer.inspect("1")) {
+			lexer.consume("1");
+		}
+		
+		if (lexer.inspect("'")) {
+			lexer.consume("'");
+		}
+	}
 
 
     // helper functions

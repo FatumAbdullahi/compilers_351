@@ -64,7 +64,7 @@ public final class ConstantExpr extends Expr {
 
 	public String toString() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return "\'" + b.toString() + "\'";
 	}
 
 	public Expr accept(final ExprVisitor v){
