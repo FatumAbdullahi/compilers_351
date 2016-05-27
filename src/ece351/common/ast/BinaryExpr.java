@@ -59,8 +59,7 @@ public abstract class BinaryExpr extends Expr {
 
 	@Override 
 	public final String toString() {
-// TODO: longer code snippet
-		return left.toString() + operator() + right.toString();
+		return "(" + left.toString() + operator() + right.toString() + ")";
 	}
 	
 	public final int hashCode() {

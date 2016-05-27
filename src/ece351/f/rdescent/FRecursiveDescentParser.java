@@ -89,11 +89,82 @@ public final class FRecursiveDescentParser implements Constants {
         return new AssignmentStatement(var, expr);
     }
     
-    Expr expr() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-    Expr term() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-    Expr factor() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-    VarExpr var() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
-    ConstantExpr constant() { throw new ece351.util.Todo351Exception(); } // TODO // TODO: replace this stub
+    Expr expr() {
+    	
+    	if (lexer.inspect("or")) {
+    		lexer.consume("or");
+    	}
+    	Expr expr = term();
+    	if (lexer.inspect("or")) {
+    		expr = new OrExpr(expr, expr());
+    	}
+    	
+    	return expr;
+    }
+    
+    Expr term() {
+    	
+    	if (lexer.inspect("and")) {
+    		lexer.consume("and");
+    	}
+    	Expr expr = factor();
+    	if (lexer.inspect("and")) {
+    		expr = new AndExpr(expr, term());
+    	}
+    
+    	return expr;
+    }
+    
+    Expr factor() {
+    	
+    	Expr expr = null;
+
+		if (lexer.inspect("not")) {
+			lexer.consume("not");
+			expr = new NotExpr(factor());
+		} else if (lexer.inspect("(")) {
+			lexer.consume("(");
+			expr = expr();
+			lexer.consume(")");
+		} else if (peekConstant()) {
+			expr = constant();
+		} else {
+			expr = var();
+		}
+		
+		return expr;
+	}
+	
+	VarExpr var() {
+		String id = "";
+		if (lexer.inspectID()) {
+			id = lexer.consumeID();
+		}
+		
+		return new VarExpr(id);
+	}
+	
+	ConstantExpr constant() {
+		boolean b = false;
+		
+		if (lexer.inspect("'")) {
+			lexer.consume("'");
+		}
+		
+		if (lexer.inspect("0")) {
+			lexer.consume("0");
+			b = false;
+		} else if (lexer.inspect("1")) {
+			lexer.consume("1");
+			b = true;
+		}
+		
+		if (lexer.inspect("'")) {
+			lexer.consume("'");
+		}
+		
+		return ConstantExpr.make(b);
+	}
 
     // helper functions
     private boolean peekConstant() {

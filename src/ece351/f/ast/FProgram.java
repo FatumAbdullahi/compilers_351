@@ -127,7 +127,6 @@ public final class FProgram implements Examinable {
     public String toString() {
 		if (formulas == null || formulas.isEmpty()) return "";
 		final String sep = System.getProperty("line.separator");
-// TODO: longer code snippet
 		String prg = "";
 		for (int i = 0; i < formulas.size(); i++) {
 			AssignmentStatement ast = formulas.get(i);
@@ -147,7 +146,7 @@ public final class FProgram implements Examinable {
 		// compare field values using Examiner.orderedExamination()
 		// no significant differences found, return true
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return Examiner.orderedExamination(Examiner.Equals, this.formulas, that.formulas);
 	}
 	
 	@Override
@@ -160,7 +159,7 @@ throw new ece351.util.Todo351Exception();
 		// compare field values using Examiner.unorderedExamination()
 		// no significant differences found, return true
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return Examiner.unorderedExamination(Examiner.Isomorphic, this.formulas, that.formulas);
 	}
 
 	/**

@@ -66,7 +66,6 @@ public final class AssignmentStatement extends Statement implements Examinable {
 	
     @Override
     public String toString() {
-// TODO: short code snippet
     	String rt = this.outputVar.toString() + " <= " + expr.toString() + ";";
     	return rt;
     }
@@ -96,7 +95,7 @@ public final class AssignmentStatement extends Statement implements Examinable {
 		// TODO: compare field values
 		// no significant differences found, return true
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return this.outputVar.isomorphic(that.outputVar) && expr.isomorphic(that.expr);
 	}
 
 	/**

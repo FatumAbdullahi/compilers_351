@@ -64,7 +64,7 @@ public final class ConstantExpr extends Expr {
 
 	public String toString() {
 // TODO: short code snippet
-		return "\'" + b.toString() + "\'";
+		return "'" + b.toString() + "'";
 	}
 
 	public Expr accept(final ExprVisitor v){
@@ -90,7 +90,7 @@ public final class ConstantExpr extends Expr {
 
 		// compare field values
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return this.b == that.b;
 	}
 
 	@Override

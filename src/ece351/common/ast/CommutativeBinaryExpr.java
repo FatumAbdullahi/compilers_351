@@ -53,7 +53,14 @@ public abstract class CommutativeBinaryExpr extends BinaryExpr {
 		
 		// compare field values, both ways, using e.examine(x,y)
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		if (e.examine(cbe.left, this.left) && e.examine(cbe.right, this.right)) {
+				return true;
+		} else if (e.examine(cbe.left, this.right) && e.examine(cbe.right, this.left)) {
+				return true;
+
+		}
+		
+		return false;
 	}
 
 
