@@ -68,11 +68,11 @@ public final class FRecursiveDescentRecognizer implements Constants {
     }
     
     void expr() {
-    	
+
     	if (lexer.inspect(";")) {
     		return;
     	}
-    	
+
     	if (lexer.inspect("or")) {
     		lexer.consume("or");
     	}
@@ -81,9 +81,9 @@ public final class FRecursiveDescentRecognizer implements Constants {
     		expr();
     	}
     }
-    
+
     void term() {
-    	
+
     	if (lexer.inspect("and")) {
     		lexer.consume("and");
     	}
@@ -92,7 +92,7 @@ public final class FRecursiveDescentRecognizer implements Constants {
     		term();
     	}
     }
-    
+
 	void factor() {
 
 		if (lexer.inspect("not")) {
@@ -108,30 +108,29 @@ public final class FRecursiveDescentRecognizer implements Constants {
 			var();
 		}
 	}
-	
+
 	void var() {
 		if (lexer.inspectID()) {
 			lexer.consumeID();
 		}
 	}
-	
+
 	void constant() {
-		
+
 		if (lexer.inspect("'")) {
 			lexer.consume("'");
 		}
-		
+
 		if (lexer.inspect("0")) {
 			lexer.consume("0");
 		} else if (lexer.inspect("1")) {
 			lexer.consume("1");
 		}
-		
+
 		if (lexer.inspect("'")) {
 			lexer.consume("'");
 		}
 	}
-
 
     // helper functions
     private boolean peekConstant() {

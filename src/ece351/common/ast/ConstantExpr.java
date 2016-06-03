@@ -63,9 +63,8 @@ public final class ConstantExpr extends Expr {
 	}
 
 	public String toString() {
-		if (this.b) { return "'0'"; }
-		else { return "'1'"; }
-//		return "\'" + b.toString() + "\'";
+		if (this.b) { return "'1'"; }
+		else { return "'0'"; }
 	}
 
 	public Expr accept(final ExprVisitor v){
