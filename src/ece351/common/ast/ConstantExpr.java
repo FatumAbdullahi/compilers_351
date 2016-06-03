@@ -63,8 +63,9 @@ public final class ConstantExpr extends Expr {
 	}
 
 	public String toString() {
-// TODO: short code snippet
-		return "'" + b.toString() + "'";
+		if (this.b) { return "'0'"; }
+		else { return "'1'"; }
+//		return "\'" + b.toString() + "\'";
 	}
 
 	public Expr accept(final ExprVisitor v){
@@ -90,7 +91,7 @@ public final class ConstantExpr extends Expr {
 
 		// compare field values
 // TODO: short code snippet
-		return this.b == that.b;
+		return this.b.equals(that.b);
 	}
 
 	@Override

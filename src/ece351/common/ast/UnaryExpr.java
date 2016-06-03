@@ -56,9 +56,7 @@ public abstract class UnaryExpr extends Expr {
 		final UnaryExpr that = (UnaryExpr) obj;
 		// compare field values using e.examine(x,y)
 // TODO: short code snippet
-		if (!e.examine(this.expr, that.expr)) return false;
-		
-		return true;
+		return e.examine(this.expr, that.expr);
     }
     
     @Override
@@ -80,7 +78,8 @@ public abstract class UnaryExpr extends Expr {
 	@Override
 	public final String toString() {
 // TODO: short code snippet
-		return this.operator() + " " + expr.toString();
+		String stringExpr = this.expr instanceof BinaryExpr ? "(" + this.expr + ")" : this.expr.toString();
+		return this.operator() + " " + stringExpr;
 	}
 
 }

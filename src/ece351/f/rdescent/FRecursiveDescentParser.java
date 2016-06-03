@@ -37,7 +37,7 @@ import ece351.common.ast.VarExpr;
 import ece351.f.ast.FProgram;
 import ece351.util.CommandLine;
 import ece351.util.Lexer;
-
+import org.parboiled.common.ImmutableList;
 
 
 public final class FRecursiveDescentParser implements Constants {
@@ -90,28 +90,24 @@ public final class FRecursiveDescentParser implements Constants {
     }
     
     Expr expr() {
-    	
-    	if (lexer.inspect("or")) {
-    		lexer.consume("or");
-    	}
     	Expr expr = term();
-    	if (lexer.inspect("or")) {
-    		expr = new OrExpr(expr, expr());
+
+    	while (lexer.inspect("or")) {
+    		lexer.consume("or");
+    		expr = new OrExpr(expr, term());
     	}
-    	
+
     	return expr;
     }
     
     Expr term() {
-    	
-    	if (lexer.inspect("and")) {
-    		lexer.consume("and");
-    	}
     	Expr expr = factor();
-    	if (lexer.inspect("and")) {
-    		expr = new AndExpr(expr, term());
+
+    	while (lexer.inspect("and")) {
+    		lexer.consume("and");
+    		expr = new AndExpr(expr, factor());
     	}
-    
+
     	return expr;
     }
     
