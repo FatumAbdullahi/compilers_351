@@ -53,7 +53,7 @@ public abstract class NaryExpr extends Expr {
 		}
     	this.children = c;
 	}
-	
+
 	public NaryExpr(final List<Expr> children) {
 		final ArrayList<Expr> a = new ArrayList<Expr>(children);
 		Collections.sort(a);
@@ -62,12 +62,12 @@ public abstract class NaryExpr extends Expr {
 
 	/**
 	 * Each subclass must implement this factory method to return
-	 * a new object of its own type. 
+	 * a new object of its own type.
 	 */
 	public abstract NaryExpr newNaryExpr(final List<Expr> children);
 
 	/**
-	 * Construct a new NaryExpr (of the appropriate subtype) with 
+	 * Construct a new NaryExpr (of the appropriate subtype) with
 	 * one extra child.
 	 * @param e the child to append
 	 * @return a new NaryExpr
@@ -77,7 +77,7 @@ public abstract class NaryExpr extends Expr {
 	}
 
 	/**
-	 * Construct a new NaryExpr (of the appropriate subtype) with 
+	 * Construct a new NaryExpr (of the appropriate subtype) with
 	 * the extra children.
 	 * @param list the children to append
 	 * @return a new NaryExpr
@@ -115,12 +115,12 @@ public abstract class NaryExpr extends Expr {
 	 * To be implemented by each subclass.
 	 */
 	public abstract String operator();
-	
+
 	/**
 	 * The complementary operation: NaryAnd returns NaryOr, and vice versa.
 	 */
 	abstract protected Class<? extends NaryExpr> getThatClass();
-	
+
 
 	/**
      * e op x = e for absorbing element e and operator op.
@@ -135,7 +135,7 @@ public abstract class NaryExpr extends Expr {
 	public abstract ConstantExpr getIdentityElement();
 
 
-	@Override 
+	@Override
     public final String toString() {
     	final StringBuilder b = new StringBuilder();
     	b.append("(");
@@ -147,7 +147,7 @@ public abstract class NaryExpr extends Expr {
     			b.append(operator());
     			b.append(" ");
     		}
-    		
+
     	}
     	b.append(")");
     	return b.toString();
@@ -164,12 +164,12 @@ public abstract class NaryExpr extends Expr {
 		if (!(obj instanceof Examinable)) return false;
 		return examine(Examiner.Equals, (Examinable)obj);
 	}
-	
+
 	@Override
 	public final boolean isomorphic(final Examinable obj) {
 		return examine(Examiner.Isomorphic, obj);
 	}
-	
+
 	private boolean examine(final Examiner e, final Examinable obj) {
 		// basics
 		if (obj == null) return false;
@@ -193,11 +193,11 @@ public abstract class NaryExpr extends Expr {
 // TODO: longer code snippet
 	}
 
-	
+
 	@Override
 	protected final Expr simplifyOnce() {
 		assert repOk();
-		final Expr result = 
+		final Expr result =
 				simplifyChildren().
 				mergeGrandchildren().
 				foldIdentityElements().
@@ -210,7 +210,7 @@ public abstract class NaryExpr extends Expr {
 		assert result.repOk();
 		return result;
 	}
-	
+
 	/**
 	 * Call simplify() on each of the children.
 	 */
@@ -228,7 +228,7 @@ public abstract class NaryExpr extends Expr {
 		return newNaryExpr(list);
 	}
 
-	
+
 	private NaryExpr mergeGrandchildren() {
 		// extract children to merge using filter (because they are the same type as us)
 			// if no children to merge, then return this (i.e., no change)
@@ -243,11 +243,13 @@ public abstract class NaryExpr extends Expr {
 
 		NaryExpr other = filter(this.getClass(), false);
 //		NaryExpr result = newNaryExpr(other.children);
+		ArrayList<Expr> list = new ArrayList<Expr>();
 
 		for (Expr m : match.children) {
-			other = other.appendAll(((NaryExpr)m).children);
+			list.addAll(((NaryExpr)m).children);
 		}
 
+		other = other.appendAll(list);
 		assert other.repOk();
 		return other;
 	}
@@ -278,9 +280,7 @@ public abstract class NaryExpr extends Expr {
 		if (this.contains(this.getAbsorbingElement(),Examiner.Equals)) {
 			// absorbing element is present: return it
 			// not so fast! what is the return type of this method? why does it have to be that way?
-			ArrayList<Expr> l = new ArrayList<Expr>();
-			l.add(getAbsorbingElement());
-			return newNaryExpr(l);
+			return newNaryExpr(ImmutableList.of((Expr)this.getAbsorbingElement()));
 		}
 			// no absorbing element present, do nothing
 
@@ -298,11 +298,9 @@ public abstract class NaryExpr extends Expr {
 		// for each negation, see if we find its complement
 		for (Expr n : negations.children) {
 			// found matching negation and its complement
-			if (this.contains(n, Examiner.Equals)) {
+			if (this.contains(((NotExpr)n).expr, Examiner.Equals)) {
 				// return absorbing element
-				ArrayList<Expr> l = new ArrayList<Expr>();
-				l.add(getAbsorbingElement());
-				return newNaryExpr(l);
+				return newNaryExpr(ImmutableList.of((Expr)this.getAbsorbingElement()));
 			}
 		}
 
@@ -312,10 +310,25 @@ public abstract class NaryExpr extends Expr {
 	}
 
 	private NaryExpr removeDuplicates() {
+		ArrayList<Expr> uniques = new ArrayList<Expr>();
+		Expr un = this.children.get(0);
+		uniques.add(un);
+
 		// remove duplicate children: x.x=x and x+x=x
 		// since children are sorted this is fairly easy
-			// no changes
-			// removed some duplicates
+		for (int i = 1; i < this.children.size(); i++) {
+			// compile list of unique Exprs
+			if (!un.equals(this.children.get(i))) {
+				un = this.children.get(i);
+				uniques.add(un);
+			}
+		}
+
+		// return new NaryExpr if duplicates found
+		if (uniques.size() != this.children.size()) {
+			return newNaryExpr(uniques);
+		}
+
     	// do not assert repOk(): this fold might leave the AST in an illegal state (with only one child)
 		return this; // TODO: replace this stub
 	}
@@ -324,14 +337,63 @@ public abstract class NaryExpr extends Expr {
 		// (x.y) + x ... = x ...
 		// check if there are any conjunctions that can be removed
     	// do not assert repOk(): this operation might leave the AST in an illegal state (with only one child)
-		return this; // TODO: replace this stub
+// TODO: replace this stub
+		NaryExpr that_class_subset = this.filter(this.getThatClass(), true);
+		NaryExpr this_class_subset = this.filter(this.getThatClass(), false);
+		ArrayList<Expr> to_remove = new ArrayList<Expr>();
+
+
+		if (that_class_subset.children.size() > 0) {
+			for (Expr that_class_child : that_class_subset.children) {
+				for (Expr t : ((NaryExpr)that_class_child).children) {
+					if (this_class_subset.contains(t, Examiner.Equals)) {
+						to_remove.add(that_class_child);
+					}
+				}
+			}
+		}
+
+		return this.removeAll(to_remove, Examiner.Equals);
 	}
 
 	private NaryExpr subsetAbsorption() {
 		// check if there are any conjunctions that are supersets of others
 		// e.g., ( a . b . c ) + ( a . b ) = a . b
     	// do not assert repOk(): this operation might leave the AST in an illegal state (with only one child)
-		return this; // TODO: replace this stub
+// TODO: replace this stub
+		NaryExpr thatClassExpr = filter(getThatClass(), true);
+		ImmutableList<Expr> toRemove = ImmutableList.of();
+
+		for (int i = 0; i < thatClassExpr.children.size(); i++) {
+			NaryExpr ithChild = (NaryExpr) thatClassExpr.children.get(i);
+
+			for (int k = 0; k < thatClassExpr.children.size(); k++) {
+				NaryExpr kthChild = (NaryExpr) thatClassExpr.children.get(k);
+
+				if (k == i) {
+					continue;
+				}
+
+				Boolean isSubset = true;
+				for (int j = 0; j < ithChild.children.size(); j++) {
+					if (!kthChild.contains(ithChild.children.get(j), Examiner.Equals)) {
+						isSubset = false;
+						break;
+					}
+				}
+
+				if (isSubset) {
+					// We now need to get rid of one or the other
+					if (kthChild.children.size() < ithChild.children.size()) {
+						toRemove = toRemove.append(ithChild);
+					} else {
+						toRemove = toRemove.append(kthChild);
+					}
+				}
+			}
+		}
+
+		return removeAll(toRemove, Examiner.Equals);
 	}
 
 	/**
@@ -348,7 +410,7 @@ public abstract class NaryExpr extends Expr {
 	}
 
 	/**
-	 * Return a new NaryExpr with only the children of a certain type, 
+	 * Return a new NaryExpr with only the children of a certain type,
 	 * or excluding children of a certain type.
 	 * @param filter
 	 * @param shouldMatchFilter
