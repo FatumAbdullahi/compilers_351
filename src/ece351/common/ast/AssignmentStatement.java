@@ -94,7 +94,7 @@ public final class AssignmentStatement extends Statement implements Examinable {
 		
 		// TODO: compare field values
 		// no significant differences found, return true
-// TODO: short code snippet
+
 		return this.outputVar.isomorphic(that.outputVar) && this.expr.isomorphic(that.expr);
 	}
 

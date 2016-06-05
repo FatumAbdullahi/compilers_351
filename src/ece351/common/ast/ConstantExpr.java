@@ -89,7 +89,6 @@ public final class ConstantExpr extends Expr {
 		final ConstantExpr that = (ConstantExpr) obj;
 
 		// compare field values
-// TODO: short code snippet
 		return this.b.equals(that.b);
 	}
 

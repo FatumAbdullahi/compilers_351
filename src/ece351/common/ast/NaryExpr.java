@@ -175,14 +175,22 @@ public abstract class NaryExpr extends Expr {
 		if (obj == null) return false;
 		if (!this.getClass().equals(obj.getClass())) return false;
 		final NaryExpr that = (NaryExpr) obj;
-		
+
 		// if the number of children are different, consider them not equivalent
+		if (this.children.size() != that.children.size()) return false;
+
 		// since the n-ary expressions have the same number of children and they are sorted, just iterate and check
 		// supposed to be sorted, but might not be (because repOk might not pass)
 		// if they aren't the same elements in the same order return false
+//		assert this.repOk();
+//		assert that.repOk();
+		for (int i = 0; i < this.children.size(); i++) {
+			if (!e.examine(this.children.get(i), that.children.get(i))) { return false; }
+		}
+
 		// no significant differences found, return true
+		return true;
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
 	}
 
 	
@@ -210,7 +218,14 @@ throw new ece351.util.Todo351Exception();
 		// note: we do not assert repOk() here because the rep might not be ok
 		// the result might contain duplicate children, and the children
 		// might be out of order
-		return this; // TODO: replace this stub
+// TODO: replace this stub
+		List<Expr> list = new ArrayList<Expr>();
+
+		for (Expr child : children) {
+			list.add(child.simplify());
+		}
+
+		return newNaryExpr(list);
 	}
 
 	
@@ -220,25 +235,55 @@ throw new ece351.util.Todo351Exception();
 			// use filter to get the other children, which will be kept in the result unchanged
 			// merge in the grandchildren
 			// assert result.repOk():  this operation should always leave the AST in a legal state
-		return this; // TODO: replace this stub
+		// TODO: replace this stub
+
+		NaryExpr match = filter(this.getClass(), true);
+
+		if (match.children.size() < 0) { return this; }
+
+		NaryExpr other = filter(this.getClass(), false);
+//		NaryExpr result = newNaryExpr(other.children);
+
+		for (Expr m : match.children) {
+			other = other.appendAll(((NaryExpr)m).children);
+		}
+
+		assert other.repOk();
+		return other;
 	}
 
 
     private NaryExpr foldIdentityElements() {
     	// if we have only one child stop now and return self
+		if (this.children.size() < 2) {
+			return this;
+		}
+
     	// we have multiple children, remove the identity elements
-    		// all children were identity elements, so now our working list is empty
-    		// return a new list with a single identity element
-    		// normal return
+		NaryExpr result = this.filter(this.getIdentityElement(), Examiner.Equals, false);
+
+		if (result.children.size() < 1) {
+			// all children were identity elements, so now our working list is empty
+			// return a new list with a single identity element
+			result = result.append(getIdentityElement());
+		}
+
+		// normal return
     	// do not assert repOk(): this fold might leave the AST in an illegal state (with only one child)
-		return this; // TODO: replace this stub
+		return result; // TODO: replace this stub
     }
 
     private NaryExpr foldAbsorbingElements() {
 		// absorbing element: 0.x=0 and 1+x=1
+		if (this.contains(this.getAbsorbingElement(),Examiner.Equals)) {
 			// absorbing element is present: return it
 			// not so fast! what is the return type of this method? why does it have to be that way?
+			ArrayList<Expr> l = new ArrayList<Expr>();
+			l.add(getAbsorbingElement());
+			return newNaryExpr(l);
+		}
 			// no absorbing element present, do nothing
+
     	// do not assert repOk(): this fold might leave the AST in an illegal state (with only one child)
 		return this; // TODO: replace this stub
 	}
@@ -248,9 +293,19 @@ throw new ece351.util.Todo351Exception();
 		// !x . x . ... = 0 and !x + x + ... = 1
 		// x op !x = absorbing element
 		// find all negations
+		NaryExpr negations = this.filter(NotExpr.class, true);
+
 		// for each negation, see if we find its complement
-				// found matching negation and its complement
+		for (Expr n : negations.children) {
+			// found matching negation and its complement
+			if (this.contains(n, Examiner.Equals)) {
 				// return absorbing element
+				ArrayList<Expr> l = new ArrayList<Expr>();
+				l.add(getAbsorbingElement());
+				return newNaryExpr(l);
+			}
+		}
+
 		// no complements to fold
     	// do not assert repOk(): this fold might leave the AST in an illegal state (with only one child)
 		return this; // TODO: replace this stub
@@ -285,6 +340,9 @@ throw new ece351.util.Todo351Exception();
 	private Expr singletonify() {
 		// if we have only one child, return it
 		// having only one child is an illegal state for an NaryExpr
+		if (this.children.size() == 1) {
+			return this.children.get(0);
+		}
 			// multiple children; nothing to do; return self
 		return this; // TODO: replace this stub
 	}
