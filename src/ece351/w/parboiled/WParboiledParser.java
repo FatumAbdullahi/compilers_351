@@ -35,6 +35,7 @@ import org.parboiled.common.ImmutableList;
 import ece351.util.BaseParser351;
 import ece351.w.ast.WProgram;
 import ece351.w.ast.Waveform;
+import java.util.List;
 
 @BuildParseTree
 //Parboiled requires that this class not be final
@@ -63,20 +64,27 @@ public /*final*/ class WParboiledParser extends BaseParser351 {
     public Rule Program() {
         		// push empty WProgram
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return Sequence(
+				push(new WProgram()),
+				Sequence(OneOrMore(Waveform()), W0(), EOI)
+		);
     }
 
 	/**
 	 * Each line of the input W file represents a "pin" in the circuit.
 	 */
     public Rule Waveform() {
-    			// peek() == [pin name, WProgram]
-    			// push empty Waveform with name
-    			// peek() = [Waveform, WProgram]
-    			// swap, pop, append, push
-    			// peek() = [WProgram]
+
+		return Sequence(
+				Name(),
+				push(new Waveform(match())),
+				W0(), ":", W0(),
+				BitString(),
+				";", W0(),
+				swap(),
+				push(((WProgram)pop()).append((Waveform)pop()))
+		);
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
     }
 
     /**
@@ -84,7 +92,7 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule Name() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return Sequence(Letter(), ZeroOrMore(FirstOf(Letter(), CharRange('0', '9'), '_')));
     }
     
     /**
@@ -93,7 +101,7 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule Letter() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return FirstOf(CharRange('A', 'Z'), CharRange('a', 'z'));
     }
 
     /**
@@ -101,7 +109,7 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule BitString() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return OneOrMore(Sequence(Bit(), push(((Waveform)pop()).append(match())), W0()));
     }
     
     /**
@@ -111,7 +119,8 @@ throw new ece351.util.Todo351Exception();
     public Rule Bit() {   
         		// peek() = [Waveform, WProgram]
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return CharRange('0', '1');
+
     }
 
 }

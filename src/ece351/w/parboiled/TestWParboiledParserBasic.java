@@ -51,6 +51,8 @@ public class TestWParboiledParserBasic extends BaseTest351 {
 		final WProgram wp2 = WParboiledParser.parse("X: 0; Y: 1;");
 		
 		// compare
+		System.out.println(wp1);
+		System.out.println(wp2);
 		assertTrue("ASTs not equals", wp1.equals(wp2));
 		assertTrue("ASTs not isomorphic", wp1.isomorphic(wp2));
 		assertTrue("ASTs not equivalent", wp1.equivalent(wp2));

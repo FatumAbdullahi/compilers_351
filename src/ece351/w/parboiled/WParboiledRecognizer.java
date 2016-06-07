@@ -25,6 +25,7 @@
  * ********************************************************************/
 
 package ece351.w.parboiled;
+import org.junit.Ignore;
 import org.parboiled.Rule;
 import org.parboiled.annotations.BuildParseTree;
 import org.parboiled.common.FileUtils;
@@ -65,7 +66,8 @@ public /*final*/ class WParboiledRecognizer extends BaseParser351 {
 	@Override
 	public Rule Program() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+//		return OneOrMore(Waveform());
+		return Sequence(OneOrMore(Waveform()), W0(), EOI);
 	}
     
 	/**
@@ -73,7 +75,7 @@ throw new ece351.util.Todo351Exception();
 	 */
     public Rule Waveform() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return Sequence(Name(), W0(), ":", W0(), BitString(), ";", W0());
     }
 
     /**
@@ -82,7 +84,9 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule Name() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+//		return OneOrMore(Letter());
+		return Sequence(Letter(), ZeroOrMore(FirstOf(Letter(), CharRange('0', '9'), '_')));
+
     }
 
     /**
@@ -91,7 +95,8 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule Letter() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return FirstOf(CharRange('A', 'Z'), CharRange('a', 'z'));
+//		return IgnoreCase(CharRange('A','Z'));
     }
 
     /**
@@ -99,7 +104,7 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule BitString() {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return OneOrMore(Sequence(Bit(), W0()));
     }
     
     /**
@@ -108,7 +113,7 @@ throw new ece351.util.Todo351Exception();
      */
     public Rule Bit() {       
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
+		return CharRange('0', '1');
     }
 
 }
