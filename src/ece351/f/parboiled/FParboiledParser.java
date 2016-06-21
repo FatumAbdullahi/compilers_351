@@ -76,6 +76,10 @@ public /*final*/ class FParboiledParser extends FBase implements Constants {
 	@Override
 	public Rule Program() {
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+
+		return Sequence(
+				push(new FProgram()),
+
+				);
 	}
 }

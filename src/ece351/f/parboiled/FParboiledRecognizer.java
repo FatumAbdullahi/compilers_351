@@ -26,6 +26,7 @@
 
 package ece351.f.parboiled;
 
+//import org.apache.tools.ant.types.resources.First;
 import org.parboiled.Rule;
 
 import ece351.common.ast.Constants;
@@ -46,7 +47,39 @@ public /*final*/ class FParboiledRecognizer extends FBase implements Constants {
 		// For the grammar production Id, ensure that the Id does not match any of the keywords specified
 		// in the rule, 'Keyword'
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+		return Sequence(OneOrMore(Formula()), W0(), EOI);
 	}
 
+	public Rule Formula() {
+		// handles trailing W
+		return Sequence(Var(), W0(), "<=", W0(), Expr(), W0(), ";", W0());
+	}
+
+	public Rule Expr() {
+
+		return Sequence(Term(), ZeroOrMore(W1(), "or", W1(), Term()));
+	}
+
+	public Rule Term() {
+		return Sequence(Factor(), ZeroOrMore(W1(), "and", W1(), Factor()));
+	}
+
+	public Rule Factor() {
+		return FirstOf(Sequence("not", W1(), Factor()), Sequence("(", W0(), Expr(), W0(), ")"), Var(), Constant());
+	}
+
+	public Rule Constant() {
+//		return CharRange('0', '1');
+//		return FirstOf(Sequence("'", "0", "'"), Sequence("'","1", "'"));
+		return Sequence(W0(), "'", FirstOf("0","1"), "'");
+	}
+
+	public Rule Var() {
+
+		return Sequence(Letter(), ZeroOrMore(FirstOf(Letter(), CharRange('0', '9'), '_')));
+	}
+
+	public Rule Letter() {
+		return FirstOf(CharRange('A', 'Z'), CharRange('a', 'z'));
+	}
 }
