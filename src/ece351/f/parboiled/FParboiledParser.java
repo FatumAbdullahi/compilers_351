@@ -79,7 +79,89 @@ public /*final*/ class FParboiledParser extends FBase implements Constants {
 
 		return Sequence(
 				push(new FProgram()),
+				// [FProgram]
+				Sequence(OneOrMore(Formula()), W0(), EOI)
+		);
+	}
 
+	public Rule Formula() {
+		// handles trailing W
+		return Sequence(
+				Var(),
+				// [FProgram, VarExpr]
+				W0(), "<=", W0(),
+				Expr(),
+				// [FProgram, VarExpr, Expr]
+				swap(),
+				push(new AssignmentStatement((VarExpr)pop(),(Expr)pop())),
+				// [FProgram, AssignmentStatement]
+				swap(),
+				push(((FProgram)pop()).append(pop())),
+				// [FProgram]
+				W0(), ";", W0()
+		);
+	}
+
+	public Rule Expr() {
+
+		return Sequence(
+				Term(),
+				ZeroOrMore(
+						Sequence(
+								W1(), "or", W1(),
+								Term(),
+								swap(),
+								push(new OrExpr((Expr)pop(),(Expr)pop()))
+						)
+				)
+		);
+	}
+
+	public Rule Term() {
+		return Sequence(
+				Factor(),
+				// [FProgram, VarExpr, Var/ConstExpr, Var/ConstExpr]
+				ZeroOrMore(
+						Sequence(
+								W1(), "and", W1(),
+								Factor(),
+								swap(),
+								push(new AndExpr((Expr)pop(),(Expr)pop()))
+							)
+					)
 				);
+	}
+
+	public Rule Factor() {
+		return FirstOf(
+				Sequence(
+						"not", W1(),
+						Factor(),
+						push(new NotExpr((Expr)pop()))
+				),
+				Sequence("(", W0(), Expr(), W0(), ")"), Var(), Constant()
+		);
+	}
+
+	public Rule Constant() {
+//		return CharRange('0', '1');
+//		return FirstOf(Sequence("'", "0", "'"), Sequence("'","1", "'"));
+		return Sequence(
+				W0(), "'", FirstOf("0","1"),
+				push(ConstantExpr.make(match())),
+				"'"
+		);
+	}
+
+	public Rule Var() {
+
+		return Sequence(
+				Sequence(Letter(), ZeroOrMore(FirstOf(Letter(), CharRange('0', '9'), '_'))),
+				push(new VarExpr(match()))
+		);
+	}
+
+	public Rule Letter() {
+		return FirstOf(CharRange('A', 'Z'), CharRange('a', 'z'));
 	}
 }

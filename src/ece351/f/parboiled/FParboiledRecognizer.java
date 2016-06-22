@@ -57,11 +57,11 @@ public /*final*/ class FParboiledRecognizer extends FBase implements Constants {
 
 	public Rule Expr() {
 
-		return Sequence(Term(), ZeroOrMore(W1(), "or", W1(), Term()));
+		return Sequence(Term(), ZeroOrMore(Sequence(W1(), "or", W1(), Term())));
 	}
 
 	public Rule Term() {
-		return Sequence(Factor(), ZeroOrMore(W1(), "and", W1(), Factor()));
+		return Sequence(Factor(), ZeroOrMore(Sequence(W1(), "and", W1(), Factor())));
 	}
 
 	public Rule Factor() {
