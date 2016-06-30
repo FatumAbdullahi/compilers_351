@@ -27,11 +27,7 @@
 package ece351.f.techmapper;
 
 import java.io.PrintWriter;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import kodkod.util.collections.IdentityHashSet;
 import ece351.common.ast.AndExpr;
@@ -53,6 +49,7 @@ import ece351.f.FParser;
 import ece351.f.analysis.ExtractAllExprs;
 import ece351.f.ast.FProgram;
 import ece351.util.Examiner;
+import org.parboiled.common.ImmutableList;
 
 public final class TechnologyMapper extends PostOrderExprVisitor {
 
@@ -123,17 +120,49 @@ public final class TechnologyMapper extends PostOrderExprVisitor {
 		header(out);
 		
 		// build a set of all of the exprs in the program
+		IdentityHashSet<Expr> exprs = ExtractAllExprs.allExprs(program);
+
 		// build substitutions by determining equivalences of exprs
-		// create nodes for output vars
-		// attach images to gates
-		// ../../gates/not_noleads.png
-		// ../../gates/or_noleads.png
-		// ../../gates/and_noleads.png
-		// compute edges
+		for (Expr e : exprs) {
+
+			for (Expr g : exprs) {
+				if (e.isomorphic(g)) {
+					substitutions.put(e, e);
+				}
+			}
+
+			if (!substitutions.containsKey(e)) {
+				substitutions.put(e, e);
+			}
+		}
+
+		for (AssignmentStatement a : program.formulas) {
+
+			// create nodes for output vars
+			// attach images to gates
+			visitVar(a.outputVar);
+
+			// ../../gates/not_noleads.png
+			// ../../gates/or_noleads.png
+			// ../../gates/and_noleads.png
+			Expr e = traverseExpr(a.expr);
+
+			// compute edges
+			edge(e, a.outputVar);
+		}
+
 		// print nodes
+		for (String n : nodes) {
+			out.println(n);
+		}
+
 		// print edges
+		for (String e : edges)  {
+			out.println(e);
+		}
+
+
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
 		// print footer
 		footer(out);
 		out.flush();
@@ -181,6 +210,7 @@ throw new ece351.util.Todo351Exception();
 
 	@Override
 	public Expr visitNot(final NotExpr e) {
+		this.node(e.serialNumber(), e.toString(), "../../gates/not_noleads.png");
 		edge(e.expr, e);
 		return e;
 	}
@@ -188,27 +218,47 @@ throw new ece351.util.Todo351Exception();
 	@Override
 	public Expr visitAnd(final AndExpr e) {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
-		// return e;
+		final Expr e2  = substitutions.get(e);
+		assert e2 != null : "no substitution for " + e + " " + e.serialNumber();
+		node(e2.serialNumber(), e2.toString(), "../../gates/and_noleads.png");
+		edge(((AndExpr) e2).left, e2);
+		edge(((AndExpr) e2).right, e2);
+		return e;
 	}
 
 	@Override
 	public Expr visitOr(final OrExpr e) {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
-		// return e;
+		final Expr e2  = substitutions.get(e);
+		assert e2 != null : "no substitution for " + e + " " + e.serialNumber();
+		node(e2.serialNumber(), e2.toString(), "../../gates/or_noleads.png");
+		edge(((OrExpr) e2).left, e2);
+		edge(((OrExpr) e2).right, e2);
+		return e;
 	}
 	
 	@Override public Expr visitNaryAnd(final NaryAndExpr e) {
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
-		// return e;
+
+		final Expr e2  = substitutions.get(e);
+		assert e2 != null : "no substitution for " + e + " " + e.serialNumber();
+		for(Expr child : e.children){
+			node(e2.serialNumber(), e2.serialNumber(), "../../gates/and_noleads.png");
+			edge(child,e);
+		}
+		return e;
 	}
 
 	@Override public Expr visitNaryOr(final NaryOrExpr e) { 
 // TODO: short code snippet
-throw new ece351.util.Todo351Exception();
-		// return e;
+
+		final Expr e2  = substitutions.get(e);
+		assert e2 != null : "no substitution for " + e + " " + e.serialNumber();
+		node(e2.serialNumber(), e2.serialNumber(), "../../gates/or_noleads.png");
+		for(Expr child: e.children){
+			edge(child,e);
+		}
+		return e;
 	}
 
 
