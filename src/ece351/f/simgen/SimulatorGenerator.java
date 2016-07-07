@@ -28,6 +28,9 @@ package ece351.f.simgen;
 
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.SortedSet;
+// TODO: remove this
+import java.util.*;
 
 import ece351.common.ast.AndExpr;
 import ece351.common.ast.AssignmentStatement;
@@ -111,31 +114,112 @@ public final class SimulatorGenerator extends ExprVisitor {
 		indent();
 		println("public static void main(final String[] args) {");
 		indent();
-		
+
+		println("final String s = File.separator;");
+
 		println("// read the input F program");
+		SortedSet<String> inputs = DetermineInputVars.inputVars(program);
+
 		println("// write the output");
+		println(program.toString());
+
+
 		println("// read input WProgram");
+		println("final CommandLine cmd = new CommandLine(args);\n" +
+				"final String input = cmd.readInputSpec();\n" +
+				"final WProgram wprogram = WParboiledParser.parse(input);");
+
+
 		println("// construct storage for output");
+		println("final Map<String,StringBuilder> outputs = new LinkedHashMap<String,StringBuilder>();");
+		for (AssignmentStatement as : program.formulas) {
+			println("outputs.put(" + as.outputVar.toString() + ", new StringBuilder(" + generateCall(as) + "));");
+		}
+		println("int timeCount = wprogram.timeCount();");
 		println("// loop over each time step");
+		println("for (int time = 0; time < timeCount; time++) {");
+		indent();
 		println("// values of input variables at this time step");
+		for(String i : inputs) {
+			println("final boolean in_" + i + " = wprogram.valueAtTime(\"" + i + "\", time);");
+		}
+		println("for(String o : outputs.keySet()) {");
+		indent();
 		println("// values of output variables at this time step");
+		println("final String out + o + = + outputs.get(o) + ? \"1 \" : \"0 \";");
 		println("// store outputs");
-		// end the time step loop
-		// boilerplate
-		println("// write the input");
-		println("// write the output");
-// TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+		println("outputs.get(o).append(\"out_\" + o);");
+		outdent();
+		println("}");
+		outdent();
+		println("}");
+		out.println("try {");
+		indent();
+		out.println("final File f = cmd.getOutputFile();\n" +
+				"f.getParentFile().mkdirs();\n" +
+				"final PrintWriter pw = new PrintWriter(new FileWriter(f));\n" +
+				"// write the input\n" +
+				"System.out.println(wprogram.toString()); pw.println(wprogram.toString());\n" +
+				"// write the output\n" +
+				"System.out.println(f.getAbsolutePath());\n" +
+				"for (final Map.Entry<String,StringBuilder> e : outputs.entrySet()) {");
+		indent();
+		out.println("System.out.println(e.getKey() + \":\" + e.getValue().toString()+ \";\");\n" +
+				"pw.write(e.getKey() + \":\" + e.getValue().toString()+ \";\\n\");");
+		outdent();
+		out.println("}" +
+				"pw.close();");
+		outdent();
+		out.println("} catch (final IOException e) {");
+		indent();
+		out.println("Debug.barf(e.getMessage());");
+		outdent();
+		out.println("}");
+
 		// end main method
 		outdent();
 		println("}");
-		
+
+
 		println("// methods to compute values for output pins");
-// TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+// DO: longer code snippet
+
+		for (AssignmentStatement as : program.formulas) {
+			out.print(generateSignature(as));
+			out.print(" { return ");
+			traverseExpr(as.expr);
+			out.println("; }");
+		}
 		// end class
 		outdent();
 		println("}");
+		println("");
+		println("");
+		println("");
+
+//		final Map<String,StringBuilder> outputs = new LinkedHashMap<String,StringBuilder>();
+//		for (AssignmentStatement as : program.formulas) {
+//			outputs.put(as.outputVar.toString(), new StringBuilder(generateCall(as)));
+//		}
+//
+//		int timeCount = wprogram.timeCount();
+//
+//		println("// loop over each time step");
+//		for (int time = 0; time < timeCount; time++) {
+//			println("// values of input variables at this time step");
+//			for(String i : inputs) {
+//				println("final boolean in_" + i + " = wprogram.valueAtTime(\"" + i + "\", time);");
+//			}
+//
+//			for(String o : outputs.keySet()) {
+//				println("// values of output variables at this time step");
+//				println("final String out_" +o+ " = " + outputs.get(o) + " ? \"1 \" : \"0 \";");
+//				println("// store outputs");
+//				outputs.get(o).append("out_" + o);
+//			}
+//
+//		}
+
 
 	}
 
@@ -201,11 +285,13 @@ throw new ece351.util.Todo351Exception();
 		out.print("(");
 		return e;
 	}
-	
+
+	// public static boolean x(final boolean a, final boolean b)
 	public String generateSignature(final AssignmentStatement f) {
 		return generateList(f, true);
 	}
-	
+
+	// x(in_a, in_b)
 	public String generateCall(final AssignmentStatement f) {
 		return generateList(f, false);
 	}
@@ -219,9 +305,19 @@ throw new ece351.util.Todo351Exception();
 		b.append("(");
 		// loop over f's input variables
 // TODO: longer code snippet
-throw new ece351.util.Todo351Exception();
+//throw new ece351.util.Todo351Exception();
+		for (String i : DetermineInputVars.inputVars(f)) {
+			if (signature) {
+				b.append("boolean ")
+			}
+			b.append(i);
+			b.append(",");
+		}
 		b.append(")");
-		return b.toString();
+//		if (b.indexOf(",)") > 0) {
+//		}
+
+		return b.toString().replaceAll(",\\)",")");
 	}
 
 }

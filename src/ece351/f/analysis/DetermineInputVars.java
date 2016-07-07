@@ -51,13 +51,16 @@ import ece351.f.ast.FProgram;
 
 
 public final class DetermineInputVars extends PostOrderExprVisitor {
+
 	private final Set<String> inputVars = new LinkedHashSet<String>();
 	private DetermineInputVars(final AssignmentStatement f) { traverseExpr(f.expr); }
+
 	/** Input variables of an AssignmentStatement, in order of occurrence. */
 	public static Set<String> inputVars(final AssignmentStatement f) {
 		final DetermineInputVars div = new DetermineInputVars(f);
 		return Collections.unmodifiableSet(div.inputVars);
 	}
+
 	/** Input variables of an FProgram, sorted lexicographically. */
 	public static SortedSet<String> inputVars(final FProgram p) {
 		final SortedSet<String> vars = new TreeSet<String>();
@@ -66,6 +69,7 @@ public final class DetermineInputVars extends PostOrderExprVisitor {
 		}
 		return vars;
 	}
+
 	@Override public Expr visitConstant(final ConstantExpr e) { return e; }
 	@Override public Expr visitVar(final VarExpr e) { inputVars.add(e.identifier); return e; }
 	@Override public Expr visitNot(final NotExpr e) { return e; }
