@@ -121,7 +121,7 @@ public final class SimulatorGenerator extends ExprVisitor {
 		SortedSet<String> inputs = DetermineInputVars.inputVars(program);
 
 		println("// write the output");
-		println(program.toString());
+//		println("//" + program.toString());
 
 
 		println("// read input WProgram");
@@ -133,7 +133,7 @@ public final class SimulatorGenerator extends ExprVisitor {
 		println("// construct storage for output");
 		println("final Map<String,StringBuilder> outputs = new LinkedHashMap<String,StringBuilder>();");
 		for (AssignmentStatement as : program.formulas) {
-			println("outputs.put(" + as.outputVar.toString() + ", new StringBuilder(" + generateCall(as) + "));");
+			println("outputs.put(\"" + as.outputVar.toString() + "\", new StringBuilder());");
 		}
 		println("int timeCount = wprogram.timeCount();");
 		println("// loop over each time step");
@@ -143,14 +143,21 @@ public final class SimulatorGenerator extends ExprVisitor {
 		for(String i : inputs) {
 			println("final boolean in_" + i + " = wprogram.valueAtTime(\"" + i + "\", time);");
 		}
+//		println("for(String o : outputs.keySet()) {");
+		println("// values of output variables at this time step");
+		println("// store outputs");
+		for (AssignmentStatement as : program.formulas) {
+
+			println("final String out_" + as.outputVar.toString() + " = "+ generateCall(as) + " ? \"1 \" : \"0 \";");
+			println("outputs.get(\""+as.outputVar+"\").append(out_"+as.outputVar+");");
+
+		}
 		println("for(String o : outputs.keySet()) {");
 		indent();
-		println("// values of output variables at this time step");
-		println("final String out + o + = + outputs.get(o) + ? \"1 \" : \"0 \";");
-		println("// store outputs");
-		println("outputs.get(o).append(\"out_\" + o);");
+//		println("outputs.get(o).append(\"out_\" + o);");
 		outdent();
 		println("}");
+//			println("}");
 		outdent();
 		println("}");
 		out.println("try {");
@@ -184,12 +191,14 @@ public final class SimulatorGenerator extends ExprVisitor {
 		println("// methods to compute values for output pins");
 // DO: longer code snippet
 
+		indent();
 		for (AssignmentStatement as : program.formulas) {
 			out.print(generateSignature(as));
 			out.print(" { return ");
 			traverseExpr(as.expr);
 			out.println("; }");
 		}
+		outdent();
 		// end class
 		outdent();
 		println("}");
@@ -308,7 +317,9 @@ public final class SimulatorGenerator extends ExprVisitor {
 //throw new ece351.util.Todo351Exception();
 		for (String i : DetermineInputVars.inputVars(f)) {
 			if (signature) {
-				b.append("boolean ")
+				b.append("boolean ");
+			} else {
+				b.append("in_");
 			}
 			b.append(i);
 			b.append(",");
